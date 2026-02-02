@@ -4,6 +4,7 @@ import pandas as pd
 from scipy.stats import ttest_ind
 import numpy as np
 from scipy import stats
+from sklearn.metrics.pairwise import cosine_similarity
 
 st.title("Data Analysis Dashboard")
 
@@ -193,3 +194,10 @@ try:
     st.plotly_chart(top_investors_fig_barv)
 except Exception as e:
     st.error(f"Error in load_data: {e}")
+
+industry_encoded = pd.get_dummies(unicorns_merged['industry'])
+similarity_matrix = cosine_similarity(industry_encoded)
+def recommend_similary(company_name, df, similarity_matrix, n=5):
+  idx = df[df['company']==company_name].index[0]
+  similar_indices = np.argsort(similarity_matrix[idx])[::-1][:n+1]
+  return df.loc[similar_indices,['company','industry','valuation']]
